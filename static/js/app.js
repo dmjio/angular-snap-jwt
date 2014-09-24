@@ -61,6 +61,11 @@ app.controller("contactController", function($scope) {
     $scope.message = "hi contact";
 });
 
+app.controller("aboutController", function($scope) {
+    $scope.message = "hi about";   
+});
+
+
 app.controller("dataController", function($scope, $http) {
     $scope.daters = [];    
     $scope.getData = function() {
@@ -69,15 +74,12 @@ app.controller("dataController", function($scope, $http) {
             url : '/api/data'
         };
         $http(req).success(function(dater, headers, config)  {
+            console.log('got it!');
             $scope.daters = dater;
-        }).error(function() { 
-            console.log('nooo'); 
+        }).error(function(){
+            console.log('this gets called on 401');
         });
     };
-});
-
-app.controller("aboutController", function($scope) {
-    $scope.message = "hi about";   
 });
 
 app.factory('authInterceptor', function ($rootScope, $q, $window,$location) {
@@ -89,12 +91,12 @@ app.factory('authInterceptor', function ($rootScope, $q, $window,$location) {
       }
       return config;
     },
-    response: function (response) {
+    responseError: function (response) {
       if (response.status === 401) {
           delete $window.sessionStorage.token;
-            $location.url('/');
+          $location.url('/login');
       }
-      return response || $q.when(response);
+        return $q.reject(response);
     }
   };
 });
